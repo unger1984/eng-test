@@ -18,7 +18,7 @@ export const AuthPage: React.FC = () => {
       const response = await apiService.auth({ username, password });
       apiService.setToken(response.access_token);
       navigate('/');
-    } catch (err) {
+    } catch {
       setError('Неверный логин или пароль');
     } finally {
       setLoading(false);
@@ -26,32 +26,31 @@ export const AuthPage: React.FC = () => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>
-          The Last of Guss
-        </h1>
-        <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#666' }}>
-          Авторизация
-        </h2>
-        
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+      }}
+    >
+      <div
+        style={{
+          backgroundColor: 'white',
+          padding: '2rem',
+          borderRadius: '8px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          width: '100%',
+          maxWidth: '400px',
+        }}
+      >
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>ВОЙТИ</h1>
+
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333' }}>
-              Логин:
+              Имя пользователя:
             </label>
             <input
               type="text"
@@ -64,11 +63,11 @@ export const AuthPage: React.FC = () => {
                 border: '1px solid #ddd',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
               }}
             />
           </div>
-          
+
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#333' }}>
               Пароль:
@@ -84,18 +83,20 @@ export const AuthPage: React.FC = () => {
                 border: '1px solid #ddd',
                 borderRadius: '4px',
                 fontSize: '1rem',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
               }}
             />
           </div>
 
           {error && (
-            <div style={{
-              color: '#d32f2f',
-              marginBottom: '1rem',
-              textAlign: 'center',
-              fontSize: '0.9rem'
-            }}>
+            <div
+              style={{
+                color: '#d32f2f',
+                marginBottom: '1rem',
+                textAlign: 'center',
+                fontSize: '0.9rem',
+              }}
+            >
               {error}
             </div>
           )}
@@ -112,19 +113,21 @@ export const AuthPage: React.FC = () => {
               borderRadius: '4px',
               fontSize: '1rem',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
             }}
           >
             {loading ? 'Вход...' : 'Войти'}
           </button>
         </form>
 
-        <div style={{
-          marginTop: '1rem',
-          fontSize: '0.9rem',
-          color: '#666',
-          textAlign: 'center'
-        }}>
+        <div
+          style={{
+            marginTop: '1rem',
+            fontSize: '0.9rem',
+            color: '#666',
+            textAlign: 'center',
+          }}
+        >
           Тестовые пользователи: roma/roma, admin/admin
         </div>
       </div>

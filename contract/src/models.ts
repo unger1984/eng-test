@@ -3,7 +3,7 @@
 export interface User {
   login: string;
   password_hash: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'nikita';
 }
 
 export interface Round {
@@ -21,8 +21,10 @@ export interface Score {
 }
 
 // Дополнительные типы для ответов API
+// currentUserScore добавил — раньше отдавался только для завершённого раунда
 export interface RoundWithScore {
   round: Round;
+  currentUserScore: number;
 }
 
 export interface RoundWithResults extends RoundWithScore {

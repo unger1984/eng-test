@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import type { Round } from '../types/api';
 
@@ -51,10 +51,9 @@ export const HomePage: React.FC = () => {
     try {
       setCreatingRound(true);
       setError('');
-      await apiService.createRound();
-      // Обновляем список раундов
-      const roundsData = await apiService.getRounds();
-      setRounds(roundsData);
+      const round = await apiService.createRound();
+      setRounds(await apiService.getRounds());
+      navigate(`/round/${round.uuid}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Ошибка создания раунда');
     } finally {
@@ -72,31 +71,31 @@ export const HomePage: React.FC = () => {
         return '#28a745';
       case 'completed':
         return '#6c757d';
-      case 'pending':
+      case 'cooldown':
         return '#ffc107';
       default:
         return '#007bff';
     }
   };
 
-  const handleRoundClick = (uuid: string) => {
-    navigate(`/round/${uuid}`);
-  };
-
   if (loading) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5'
-      }}>
-        <div style={{
-          textAlign: 'center',
-          fontSize: '1.2rem',
-          color: '#666'
-        }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+        }}
+      >
+        <div
+          style={{
+            textAlign: 'center',
+            fontSize: '1.2rem',
+            color: '#666',
+          }}
+        >
           Загрузка раундов...
         </div>
       </div>
@@ -104,29 +103,36 @@ export const HomePage: React.FC = () => {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5',
-      padding: '2rem'
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }}>
-        <header style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '2rem',
-          backgroundColor: 'white',
-          padding: '1rem 2rem',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
-        }}>
-          <h1 style={{ margin: 0, color: '#333' }}>
-            The Last of Guss
-          </h1>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: '#f5f5f5',
+        padding: '2rem',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '1200px',
+          margin: '0 auto',
+        }}
+      >
+        <header
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '2rem',
+            backgroundColor: 'white',
+            padding: '1rem 2rem',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <h1 style={{ margin: 0, color: '#333' }}>Список РАУНДОВ</h1>
+          <span style={{ color: '#666', fontSize: '0.9rem' }}>
+            Имя игрока {apiService.decodeToken()?.username ?? ''}
+          </span>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             {apiService.isAdmin() && (
               <button
                 onClick={handleCreateRound}
@@ -138,7 +144,7 @@ export const HomePage: React.FC = () => {
                   border: 'none',
                   borderRadius: '4px',
                   cursor: creatingRound ? 'not-allowed' : 'pointer',
-                  fontSize: '0.9rem'
+                  fontSize: '0.9rem',
                 }}
               >
                 {creatingRound ? 'Создание...' : 'Создать раунд'}
@@ -153,7 +159,7 @@ export const HomePage: React.FC = () => {
                 border: 'none',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '0.9rem'
+                fontSize: '0.9rem',
               }}
             >
               Выйти
@@ -161,95 +167,109 @@ export const HomePage: React.FC = () => {
           </div>
         </header>
 
-        <div style={{
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            padding: '1.5rem 2rem',
-            borderBottom: '1px solid #eee'
-          }}>
-            <h2 style={{ margin: 0, color: '#333' }}>
-              Список раундов
-            </h2>
+        <div
+          style={{
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              padding: '1.5rem 2rem',
+              borderBottom: '1px solid #eee',
+            }}
+          >
+            <h2 style={{ margin: 0, color: '#333' }}>Список раундов</h2>
           </div>
 
           {error && (
-            <div style={{
-              padding: '1rem 2rem',
-              backgroundColor: '#f8d7da',
-              color: '#721c24',
-              borderBottom: '1px solid #f5c6cb'
-            }}>
+            <div
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: '#f8d7da',
+                color: '#721c24',
+                borderBottom: '1px solid #f5c6cb',
+              }}
+            >
               {error}
             </div>
           )}
 
           {rounds.length === 0 ? (
-            <div style={{
-              padding: '3rem 2rem',
-              textAlign: 'center',
-              color: '#666'
-            }}>
+            <div
+              style={{
+                padding: '3rem 2rem',
+                textAlign: 'center',
+                color: '#666',
+              }}
+            >
               Раунды не найдены
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
-              <table style={{
-                width: '100%',
-                borderCollapse: 'collapse'
-              }}>
+              <table
+                style={{
+                  width: '100%',
+                  borderCollapse: 'collapse',
+                }}
+              >
                 <thead>
                   <tr style={{ backgroundColor: '#f8f9fa' }}>
-                    <th style={{
-                      padding: '1rem',
-                      textAlign: 'left',
-                      borderBottom: '1px solid #dee2e6',
-                      fontWeight: '600',
-                      color: '#495057'
-                    }}>
+                    <th
+                      style={{
+                        padding: '1rem',
+                        textAlign: 'left',
+                        borderBottom: '1px solid #dee2e6',
+                        fontWeight: '600',
+                        color: '#495057',
+                      }}
+                    >
                       ID
                     </th>
-                    <th style={{
-                      padding: '1rem',
-                      textAlign: 'left',
-                      borderBottom: '1px solid #dee2e6',
-                      fontWeight: '600',
-                      color: '#495057'
-                    }}>
+                    <th
+                      style={{
+                        padding: '1rem',
+                        textAlign: 'left',
+                        borderBottom: '1px solid #dee2e6',
+                        fontWeight: '600',
+                        color: '#495057',
+                      }}
+                    >
                       Статус
                     </th>
-                    <th style={{
-                      padding: '1rem',
-                      textAlign: 'left',
-                      borderBottom: '1px solid #dee2e6',
-                      fontWeight: '600',
-                      color: '#495057'
-                    }}>
+                    <th
+                      style={{
+                        padding: '1rem',
+                        textAlign: 'left',
+                        borderBottom: '1px solid #dee2e6',
+                        fontWeight: '600',
+                        color: '#495057',
+                      }}
+                    >
                       Начало
                     </th>
-                    <th style={{
-                      padding: '1rem',
-                      textAlign: 'left',
-                      borderBottom: '1px solid #dee2e6',
-                      fontWeight: '600',
-                      color: '#495057'
-                    }}>
+                    <th
+                      style={{
+                        padding: '1rem',
+                        textAlign: 'left',
+                        borderBottom: '1px solid #dee2e6',
+                        fontWeight: '600',
+                        color: '#495057',
+                      }}
+                    >
                       Конец
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {rounds.map((round) => (
-                    <tr 
-                      key={round.uuid} 
-                      onClick={() => handleRoundClick(round.uuid)}
+                    <tr
+                      key={round.uuid}
                       style={{
                         borderBottom: '1px solid #dee2e6',
-                        cursor: 'pointer',
-                        transition: 'background-color 0.2s'
+                        transition: 'background-color 0.2s',
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.backgroundColor = '#f8f9fa';
@@ -258,39 +278,55 @@ export const HomePage: React.FC = () => {
                         e.currentTarget.style.backgroundColor = 'transparent';
                       }}
                     >
-                      <td style={{
-                        padding: '1rem',
-                        fontFamily: 'monospace',
-                        fontSize: '0.9rem',
-                        color: '#666'
-                      }}>
-                        {round.uuid.slice(0, 8)}...
+                      <td
+                        style={{
+                          padding: '1rem',
+                          fontFamily: 'monospace',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        <Link
+                          to={`/round/${round.uuid}`}
+                          style={{ color: '#007bff', textDecoration: 'none' }}
+                        >
+                          ● Round ID: {round.uuid}
+                        </Link>
                       </td>
                       <td style={{ padding: '1rem' }}>
-                        <span style={{
-                          display: 'inline-block',
-                          padding: '0.25rem 0.5rem',
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                          fontWeight: '500',
-                          backgroundColor: getStatusColor(round.status),
-                          color: 'white'
-                        }}>
-                          {round.status}
+                        <span
+                          style={{
+                            display: 'inline-block',
+                            padding: '0.25rem 0.5rem',
+                            borderRadius: '12px',
+                            fontSize: '0.8rem',
+                            fontWeight: '500',
+                            backgroundColor: getStatusColor(round.status),
+                            color: 'white',
+                          }}
+                        >
+                          {round.status === 'Active'
+                            ? 'Активен'
+                            : round.status === 'Completed'
+                              ? 'Завершен'
+                              : round.status}
                         </span>
                       </td>
-                      <td style={{
-                        padding: '1rem',
-                        fontSize: '0.9rem',
-                        color: '#666'
-                      }}>
+                      <td
+                        style={{
+                          padding: '1rem',
+                          fontSize: '0.9rem',
+                          color: '#666',
+                        }}
+                      >
                         {formatDate(round.start_datetime)}
                       </td>
-                      <td style={{
-                        padding: '1rem',
-                        fontSize: '0.9rem',
-                        color: '#666'
-                      }}>
+                      <td
+                        style={{
+                          padding: '1rem',
+                          fontSize: '0.9rem',
+                          color: '#666',
+                        }}
+                      >
                         {round.end_datetime ? formatDate(round.end_datetime) : '—'}
                       </td>
                     </tr>

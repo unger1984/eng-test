@@ -1,5 +1,3 @@
-import { Round } from './models';
-
 // Типы запросов к API
 
 export interface AuthRequest {
@@ -12,6 +10,4 @@ export interface TapRequest {
 }
 
 // Для POST /round - создание раунда (без параметров, но требует авторизации admin)
-export interface CreateRoundRequest {
-  // Пустой объект, так как все параметры вычисляются на сервере
-}
+export type CreateRoundRequest = Record<string, never>;

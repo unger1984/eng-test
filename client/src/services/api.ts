@@ -1,13 +1,13 @@
-import type { 
-  AuthRequest, 
-  AuthResponse, 
+import type {
+  AuthRequest,
+  AuthResponse,
   RoundsResponse,
   RoundResponse,
   RoundWithResultsResponse,
   TapRequest,
-  TapResponse, 
-  CreateRoundResponse, 
-  User 
+  TapResponse,
+  CreateRoundResponse,
+  User,
 } from '../types/api';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -17,7 +17,7 @@ class ApiService {
     const token = localStorage.getItem('auth_token');
     return {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
+      ...(token && { Authorization: `Bearer ${token}` }),
     };
   }
 
@@ -120,10 +120,9 @@ class ApiService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return {
         username: payload.username,
-        role: payload.role
+        role: payload.role,
       };
-    } catch (error) {
-      console.error('Failed to decode token:', error);
+    } catch {
       return null;
     }
   }

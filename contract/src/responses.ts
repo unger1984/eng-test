@@ -11,13 +11,13 @@ export interface TapResponse {
   score: number;
 }
 
-export interface RoundsResponse extends Array<Omit<Round, 'score'>> {}
+export type RoundsResponse = Array<Omit<Round, 'score'>>;
 
-export interface RoundResponse extends RoundWithScore {}
+export type RoundResponse = RoundWithScore;
 
-export interface RoundWithResultsResponse extends RoundWithResults {}
+export type RoundWithResultsResponse = RoundWithResults;
 
-export interface CreateRoundResponse extends Round {}
+export type CreateRoundResponse = Round;
 
 // Типы для ошибок API
 export interface ApiError {

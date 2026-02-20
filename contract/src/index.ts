@@ -16,27 +16,27 @@ export const API_ENDPOINTS = {
   AUTH: {
     url: '/auth',
     method: 'POST' as const,
-    requiresAuth: false
+    requiresAuth: false,
   },
   ROUNDS: {
     url: '/rounds',
     method: 'GET' as const,
-    requiresAuth: true
+    requiresAuth: true,
   },
   ROUND: {
     url: '/round/:uuid',
     method: 'GET' as const,
-    requiresAuth: true
+    requiresAuth: true,
   },
   TAP: {
     url: '/tap',
     method: 'POST' as const,
-    requiresAuth: true
+    requiresAuth: true,
   },
   CREATE_ROUND: {
     url: '/round',
     method: 'POST' as const,
     requiresAuth: true,
-    requiresAdmin: true
-  }
+    requiresAdmin: true,
+  },
 } as const;

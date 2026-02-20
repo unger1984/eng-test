@@ -9,9 +9,9 @@ import { Round } from './round.model';
     {
       unique: true,
       fields: ['user', 'round'],
-      name: 'unique_user_round'
-    }
-  ]
+      name: 'unique_user_round',
+    },
+  ],
 })
 export class Score extends Model<Score> {
   @ForeignKey(() => User)

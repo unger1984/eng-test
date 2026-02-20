@@ -4,5 +4,5 @@ export * from '@roundsquares/contract';
 // Additional types specific to client
 export interface User {
   username: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'nikita';
 }

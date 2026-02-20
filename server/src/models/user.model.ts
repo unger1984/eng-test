@@ -1,5 +1,4 @@
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
-import { Round } from './round.model';
 import { Score } from './score.model';
 
 export interface IUserData {

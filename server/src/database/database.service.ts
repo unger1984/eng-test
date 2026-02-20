@@ -2,8 +2,6 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { User } from '../models/user.model';
-import { Round } from '../models/round.model';
-import { Score } from '../models/score.model';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -17,7 +15,7 @@ export class DatabaseService implements OnModuleInit {
 
       // Check if users table exists
       const tableExists = await this.checkTableExists('users');
-      
+
       if (!tableExists) {
         console.log('Users table not found. Initializing database...');
         await this.initializeDatabase();
@@ -35,7 +33,7 @@ export class DatabaseService implements OnModuleInit {
       const queryInterface = this.sequelize.getQueryInterface();
       const tables = await queryInterface.showAllTables();
       return tables.includes(tableName);
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -60,13 +58,13 @@ export class DatabaseService implements OnModuleInit {
       {
         login: 'roma',
         password: 'roma',
-        role: 'user'
+        role: 'user',
       },
       {
         login: 'admin',
         password: 'admin',
-        role: 'admin'
-      }
+        role: 'admin',
+      },
     ];
 
     for (const userData of users) {
@@ -74,7 +72,7 @@ export class DatabaseService implements OnModuleInit {
       await User.create({
         login: userData.login,
         password_hash,
-        role: userData.role
+        role: userData.role,
       });
     }
   }

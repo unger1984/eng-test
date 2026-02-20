@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import type { RoundsResponse } from '@roundsquares/contract';
 import { Round } from '../models/round.model';
 import { Score } from '../models/score.model';
 import { User } from '../models/user.model';
 import { v4 as uuidv4 } from 'uuid';
-
 
 @Injectable()
 export class GamesService {
@@ -14,12 +14,8 @@ export class GamesService {
     @InjectModel(Score)
     private scoreModel: typeof Score,
     @InjectModel(User)
-    private userModel: typeof User,
+    private userModel: typeof User
   ) {}
-
-  async getAllRounds(): Promise<Round[]> {
-    return this.roundModel.findAll();
-  }
 
   async getRoundByUuid(uuid: string): Promise<Round | null> {
     return this.roundModel.findByPk(uuid);
@@ -35,7 +31,6 @@ export class GamesService {
   }
 
   async getOrCreateScoreByUserAndRound(userId: string, roundUuid: string): Promise<Score> {
-
     const [scoreRecord] = await this.scoreModel.findOrCreate({
       where: {
         user: userId,
@@ -72,9 +67,25 @@ export class GamesService {
     return Math.floor(taps / 11) * 9 + taps;
   }
 
+  /** Раунд активен, если сейчас между стартом и концом */
+  isRoundActive(round: Round): boolean {
+    const now = new Date();
+    return now >= round.start_datetime && now <= round.end_datetime;
+  }
+
   async processTap(userId: string, roundUuid: string, role: string): Promise<{ score: number }> {
-    if (role != 'nikita') {
-      // Обновить запись в таблице score
+    const round = await this.roundModel.findByPk(roundUuid);
+    if (!round) {
+      throw new BadRequestException('Round not found');
+    }
+    if (!this.isRoundActive(round)) {
+      throw new BadRequestException('Round is not active');
+    }
+
+    // без getOrCreate при первом тапе падало — increment по несуществующей записи, findOne возвращал null
+    const scoreRecord = await this.getOrCreateScoreByUserAndRound(userId, roundUuid);
+
+    if (role !== 'nikita') {
       await this.scoreModel.increment('taps', {
         by: 1,
         where: {
@@ -82,17 +93,10 @@ export class GamesService {
           round: roundUuid,
         },
       });
+      await scoreRecord.reload();
     }
 
-      const scoreRecord = await this.scoreModel.findOne({
-        where: {
-          user: userId,
-          round: roundUuid,
-        },
-      });
-      const score = this.scoreFromTapsCount(scoreRecord.taps);
-
-      return { score };
+    return { score: this.scoreFromTapsCount(scoreRecord.taps) };
   }
 
   async getRoundSummary(roundUuid: string): Promise<{
@@ -119,10 +123,10 @@ export class GamesService {
     // Находим лучшего игрока
     let bestPlayer: { username: string; score: number } | null = null;
     if (scores.length > 0) {
-      const bestScore = scores.reduce((max, score) => { 
+      const bestScore = scores.reduce((max, score) => {
         const scorePoints = this.scoreFromTapsCount(score.taps);
         const maxPoints = this.scoreFromTapsCount(max.taps);
-        return scorePoints > maxPoints ? score : max;  
+        return scorePoints > maxPoints ? score : max;
       });
 
       bestPlayer = {
@@ -140,5 +144,24 @@ export class GamesService {
   isRoundFinished(round: Round): boolean {
     const now = new Date();
     return now >= round.end_datetime;
+  }
+
+  /** Статус по текущему времени — в БД лежит scheduled, нужен для UI */
+  getRoundStatus(round: Round): 'Cooldown' | 'Active' | 'Completed' {
+    const now = new Date();
+    if (now < round.start_datetime) return 'Cooldown';
+    if (now <= round.end_datetime) return 'Active';
+    return 'Completed';
+  }
+
+  /** Список раундов с пересчитанным статусом */
+  async getAllRoundsWithStatus(): Promise<RoundsResponse> {
+    const rounds = await this.roundModel.findAll();
+    return rounds.map((r) => ({
+      uuid: r.uuid,
+      start_datetime: r.start_datetime,
+      end_datetime: r.end_datetime,
+      status: this.getRoundStatus(r),
+    }));
   }
 }
